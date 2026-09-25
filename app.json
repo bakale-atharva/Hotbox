@@ -37,6 +37,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "65530657-d760-433c-bac9-51d2cb493d29"
+      }
+    },
+    "owner": "atharva-bakale-industries"
   }
 }
