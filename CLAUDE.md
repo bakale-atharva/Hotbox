@@ -16,7 +16,7 @@ This file gives Claude Code the context it needs to work in this repo. Keep it s
 ## Commands
 
 - **Install:** `pnpm install`
-- **Dev / run:** `pnpm expo start --web`
+- **Dev / run:** `pnpm web`
 - **Lint / format:** `pnpm expo lint`
 
 ## Git Workflow

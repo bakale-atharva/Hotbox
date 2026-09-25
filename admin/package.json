@@ -1,0 +1,33 @@
+{
+  "name": "hotbox",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "frontend": "next dev",
+    "backend": "convex dev",
+    "typecheck": "tsc --noEmit",
+    "build": "pnpm run typecheck && next build",
+    "start": "next start",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^7.9.7",
+    "convex": "^1.46.0",
+    "next": "^16.3.6",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@convex-dev/eslint-plugin": "^5.0.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "eslint": "^10.11.0",
+    "eslint-config-next": "^16.3.6",
+    "prettier": "^3.9.9",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2"
+  }
+}
