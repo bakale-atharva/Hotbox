@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "frontend": "next dev",
-    "backend": "convex dev",
     "typecheck": "tsc --noEmit",
     "build": "pnpm run typecheck && next build",
     "start": "next start",
@@ -18,7 +17,6 @@
     "react-dom": "^19.3.0"
   },
   "devDependencies": {
-    "@convex-dev/eslint-plugin": "^5.0.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.6.2",
     "@types/react": "^19.3.0",

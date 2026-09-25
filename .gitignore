@@ -45,3 +45,4 @@ example
 # Environment Variables
 /app/.env.local
 /admin/.env.local
+/backend/.env.local

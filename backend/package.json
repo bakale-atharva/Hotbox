@@ -1,0 +1,20 @@
+{
+  "name": "hotbox-backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "convex dev",
+    "typecheck": "tsc --noEmit -p convex/tsconfig.json",
+    "lint": "eslint convex"
+  },
+  "dependencies": {
+    "convex": "^1.46.0"
+  },
+  "devDependencies": {
+    "@convex-dev/eslint-plugin": "^5.0.0",
+    "@types/node": "^22.19.0",
+    "eslint": "^10.11.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.0"
+  }
+}
