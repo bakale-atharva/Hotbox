@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "frontend": "next dev",
+    "dev": "next dev",
     "typecheck": "tsc --noEmit",
     "build": "pnpm run typecheck && next build",
     "start": "next start",

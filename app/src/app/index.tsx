@@ -1,98 +1,109 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth, useSignUp } from "@clerk/expo";
+import { useState } from "react";
+import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function MainScreen() {
+  const { isLoaded, isSignedIn } = useAuth();
+  const { signUp } = useSignUp();
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
+  const [emailAddress, setEmailAddress] = useState("");
+  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  const handleSignUp = async () => {
+    const { error } = await signUp.password({ emailAddress, password });
+    if (error) {
+      // Handle the error in your app.
+      // See https://clerk.com/docs/guides/development/custom-flows/error-handling
+      return;
+    }
+
+    const { error: sendError } = await signUp.verifications.sendEmailCode();
+    if (sendError) {
+      // Handle the error in your app.
+      return;
+    }
+
+    setIsVerifying(true);
+  };
+
+  const handleVerify = async () => {
+    const { error } = await signUp.verifications.verifyEmailCode({ code });
+    if (error) {
+      // Handle the error in your app.
+      return;
+    }
+
+    const { error: finalizeError } = await signUp.finalize();
+    if (finalizeError) {
+      // Handle the error in your app.
+    }
+  };
+
+  if (!isLoaded) {
+    return null;
   }
-  if (Device.isDevice) {
+
+  if (isSignedIn) {
     return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
+      <View style={styles.container}>
+        <Text>You're Signed In!</Text>
+      </View>
     );
   }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+
+  if (isVerifying) {
+    return (
+      <View style={styles.container}>
+        <TextInput
+          style={styles.input}
+          value={code}
+          placeholder="Enter your verification code"
+          onChangeText={setCode}
+          keyboardType="numeric"
+        />
+        <Button title="Verify" onPress={handleVerify} />
+      </View>
+    );
+  }
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
-
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+    <View style={styles.container}>
+      <TextInput
+        style={styles.input}
+        autoCapitalize="none"
+        value={emailAddress}
+        placeholder="Enter email"
+        onChangeText={setEmailAddress}
+        keyboardType="email-address"
+      />
+      <TextInput
+        style={styles.input}
+        value={password}
+        placeholder="Enter password"
+        secureTextEntry={true}
+        onChangeText={setPassword}
+      />
+      <Button title="Sign Up" onPress={handleSignUp} />
+      {/* Required for sign-up flows on Expo web. Clerk skips the browser CAPTCHA on iOS and Android */}
+      <View nativeID="clerk-captcha" />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    padding: 20,
+    gap: 12,
+    justifyContent: "center",
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
   },
 });
