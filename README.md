@@ -59,9 +59,10 @@ pending ──▶ cooking ──▶ out_for_delivery ──▶ delivered
    ```bash
    cd backend && pnpm dev
    ```
-4. **Seed the menu** (safe to run more than once):
+4. **Seed the menu**, and optionally demo orders for 27–30 Sep 2026 (both are safe to run more than once):
    ```bash
    cd backend && pnpm exec convex run seed:run
+   pnpm exec convex run seed:orders
    ```
 5. **Run the frontends**, each in its own terminal:
    ```bash
@@ -83,7 +84,7 @@ Only admins can use the admin panel and the admin functions. To make someone an 
    ```
 3. Have that user sign out and back in.
 
-Convex checks this claim on every admin function, so the check is enforced on the server, not just in the UI.
+Convex checks this claim on every admin function, so the check is enforced on the server, not just in the UI. If an admin still gets bounced, the `/unauthorized` page lists which part of the token is missing.
 
 ## Conventions
 
@@ -96,5 +97,5 @@ Convex checks this claim on every admin function, so the check is enforced on th
 
 - [x] **Phase 0**: baseline project setup
 - [x] **Phase 1**: Convex backend (menu, inventory, orders, admin role checks)
-- [ ] **Phase 2**: admin panel (live order board, menu and stock CRUD, image uploads)
+- [x] **Phase 2**: admin panel (live order board, menu and stock CRUD, image uploads, demo order seed)
 - [ ] **Phase 3**: customer app (menu, cart, checkout, live order tracking)

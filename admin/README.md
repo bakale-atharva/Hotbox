@@ -1,16 +1,48 @@
 # Hotbox — Admin Panel
 
-The staff dashboard for Hotbox, built with Next.js (App Router), [Clerk](https://clerk.com) and Tailwind CSS v4. It reads and writes the shared [Convex backend](../backend/) through live queries, so new orders appear without a refresh.
+The staff dashboard for Hotbox, built with Next.js (App Router), [Clerk](https://clerk.com), Tailwind CSS v4 and [shadcn/ui](https://ui.shadcn.com). It reads and writes the shared [Convex backend](../backend/) through live queries, so new orders appear without a refresh.
 
-> **Status:** the dashboard is built in **Phase 2**. For now the home page is a placeholder.
+## Features
 
-## Planned features (Phase 2)
+| Page | What you can do |
+| --- | --- |
+| **Orders** (`/`) | A live board with Pending, Cooking, Out for delivery and Delivered today columns. Advance an order with one click, or cancel it after confirming. Stat cards show today's orders, revenue and active orders. A timer turns red when an order has sat in one step for 20 minutes. |
+| **Order detail** (`/orders/[id]`) | Items, totals, delivery details (tap the phone number to call) and a status timeline. |
+| **Pizzas** (`/pizzas`) | Create, edit and delete pizzas: photo upload to Convex storage, category, ingredients, S/M/L prices and a menu visibility toggle. A **Sold out** badge appears when an ingredient runs out. |
+| **Ingredients** (`/ingredients`) | Search ingredients and toggle stock inline. Turning one off immediately marks every pizza that uses it as sold out. |
+| **Categories** (`/categories`) | Create, edit and delete categories and set their menu order. Deleting is blocked while pizzas still use the category. |
 
-- **Live order board**: Pending, Cooking, Out for delivery and Delivered columns. Advance or cancel an order with one click, and get a toast when a new order arrives.
-- **Pizzas**: create, edit and delete pizzas, with S/M/L prices, category, ingredients, image upload and an availability toggle.
-- **Ingredients**: manage stock. Marking one out of stock marks every pizza that uses it as sold out.
-- **Categories**: manage categories and their order.
-- **Admin-only access**: non-admins are redirected away. Convex also checks the admin role on every admin function.
+Also included:
+
+- A **toast for every new order**, whichever page you're on, plus a pending-orders count in the sidebar.
+- **Light, dark and system themes**.
+- A collapsible sidebar.
+
+## Access control
+
+1. **`proxy.ts`**: every route except `/sign-in` and `/unauthorized` requires a signed-in user whose session token has `metadata.role === "admin"`. Signed-out users are sent to `/sign-in`, and non-admins to `/unauthorized`.
+2. **`/unauthorized`** shows a checklist of what the token actually contains (signed in, `metadata` claim present, role value), so a Clerk setup mistake is easy to spot.
+3. **`AdminGate`** (`components/admin-gate.tsx`) waits until Convex has the Clerk token, then confirms Convex sees the admin role before any admin query runs.
+4. **Convex** re-checks the role on every admin function. This is the real security boundary.
+
+See the [root README](../README.md#admin-access) for the Clerk Dashboard setup.
+
+## Design tokens
+
+Admin and the Expo app share one Hotbox look. Colors are defined as CSS variables in [`app/globals.css`](app/globals.css), and the Expo app mirrors the same hex values.
+
+| Token | Light | Dark | Used for |
+| --- | --- | --- | --- |
+| `primary` | `#e4572e` | `#f06a40` | Brand (tomato red), primary buttons |
+| `background` | `#fffaf5` | `#12100e` | Warm off-white / near-black |
+| `secondary` / `accent` | `#fdeee6` | `#2a211c` | Soft tomato tint |
+| `status-pending` | `#d97706` | `#fbbf24` | Pending orders |
+| `status-cooking` | `#e4572e` | `#f06a40` | Cooking |
+| `status-out-for-delivery` | `#2563eb` | `#60a5fa` | Out for delivery |
+| `status-delivered` | `#16a34a` | `#4ade80` | Delivered |
+| `status-cancelled` | `#78716c` | `#a8a29e` | Cancelled |
+
+The radius is `0.875rem`, and the font is Geist.
 
 ## Commands
 
@@ -39,8 +71,25 @@ Run these from inside `admin/`. The Convex backend runs separately (`cd ../backe
 ## How it's wired
 
 - **Convex API types** are imported from the backend through a path alias: `import { api } from "@backend/convex/_generated/api"`. The alias `@backend/*` points to `../backend/*` in `tsconfig.json`. `turbopack.root` in `next.config.ts` points to the repo root so Next.js can resolve files outside `admin/`.
-- **Auth**: `ClerkProvider` in `app/layout.tsx`, and `ConvexProviderWithClerk` in `components/ConvexClientProvider.tsx`. Route protection lives in `proxy.ts` (Next 16's replacement for `middleware.ts`).
-- **Admin role**: set `{ "role": "admin" }` in a user's Clerk public metadata. See the [root README](../README.md#admin-access).
+- **Auth**: `ClerkProvider` in `app/layout.tsx`, and `ConvexProviderWithClerk` in `components/ConvexClientProvider.tsx`. Route protection lives in `proxy.ts` (Next 16's replacement for `middleware.ts`). The session claim types are in `types/globals.d.ts`.
+- **UI**: shadcn/ui (Radix base, Nova preset) lives in `components/ui/`; add more with `pnpm dlx shadcn@latest add <name>`. Icons come from `lucide-react`, and toasts use `sonner`.
+
+## Structure
+
+```
+app/
+  (dashboard)/        Admin-only pages sharing the sidebar layout
+    page.tsx          Orders board
+    orders/[id]/      Order detail
+    pizzas/  ingredients/  categories/
+  sign-in/            Clerk <SignIn />
+  unauthorized/       Non-admin landing page with a token checklist
+components/
+  ui/                 shadcn/ui primitives
+  orders/  pizzas/    Feature components
+lib/                  Formatting, order status metadata, error helpers
+proxy.ts              Admin-only route gate
+```
 
 ## TypeScript 7 and linting
 
