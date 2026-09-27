@@ -1,5 +1,5 @@
 {
-  "name": "hotbox-backend",
+  "name": "@hotbox/backend",
   "version": "0.1.0",
   "private": true,
   "scripts": {

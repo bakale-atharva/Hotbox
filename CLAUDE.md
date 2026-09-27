@@ -8,7 +8,11 @@ This file gives Claude Code the context it needs to work in this repo. Keep it s
 
 ## Project Overview
 
-The repo contains three separate projects, each with its own `package.json`, lockfile, and `node_modules`. There is no root workspace — run every command from inside the relevant folder.
+The repo is a pnpm workspace orchestrated by [Turborepo](https://turborepo.dev). It contains three packages (`@hotbox/app`, `@hotbox/admin`, `@hotbox/backend`), each with its own `package.json` and `node_modules`, sharing one root `pnpm-lock.yaml`. Run `pnpm install` from the root.
+
+- **All dev servers:** `pnpm dev` from the root (turbo TUI; press `i` to interact with a task, e.g. Expo shortcuts)
+- **One package:** `pnpm turbo dev --filter=@hotbox/admin`
+- **Whole repo:** `pnpm lint`, `pnpm typecheck`, `pnpm build` from the root. Per-package scripts still work from inside each folder.
 
 | Folder     | What it is                 | Stack                                | Instructions                       |
 | ---------- | -------------------------- | ------------------------------------ | ---------------------------------- |
@@ -26,7 +30,8 @@ The plan is divided into phases. The user will tell you to do a phase. At that t
 ## Guardrails — Never Do This
 
 - Never commit `.env` or `.env.local` files (`app/`, `admin/`, and `backend/` each have one).
-- Never install dependencies in one project from the other's folder, or add a root-level `package.json` without asking.
+- Never add a dependency to the wrong package. Use `pnpm add <pkg> --filter @hotbox/<name>` (or run it inside that folder). Only root tooling like `turbo` belongs in the root `package.json`.
+- Never add per-package `pnpm-lock.yaml` or `pnpm-workspace.yaml` files. Workspace settings (`allowBuilds`, `overrides`) live in the root `pnpm-workspace.yaml`.
 
 ## Notes For Claude
 

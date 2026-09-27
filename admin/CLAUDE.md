@@ -8,10 +8,10 @@ The admin dashboard. The Convex backend lives in the repo-level [backend/](../ba
 
 ## Commands
 
-Run from inside `admin/`. The Next server and Convex dev are separate long-running processes — run Convex from `backend/` (`pnpm dev`) in its own terminal.
+Run from inside `admin/`. The Next server and Convex dev are separate long-running processes; `pnpm dev` at the repo root runs both (plus the Expo app) via Turborepo.
 
-- **Install:** `pnpm install`
-- **Frontend (Next dev):** `pnpm frontend`
+- **Install:** `pnpm install` from the repo root (one workspace lockfile)
+- **Dev (Next):** `pnpm dev` (or `pnpm dev` at the repo root to start admin, backend and app together)
 - **Lint:** `pnpm lint`
 - **Typecheck:** `pnpm typecheck`
 - **Build:** `pnpm build`
