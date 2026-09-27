@@ -1,24 +1,9 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/unauthorized"]);
-
-// Protected-first: every page needs a signed-in admin. This is an optimistic
-// UX gate; Convex re-checks the admin role on every admin function.
-export default clerkMiddleware(
-  async (auth, req) => {
-    if (isPublicRoute(req)) return;
-
-    const { isAuthenticated, sessionClaims, redirectToSignIn } = await auth();
-    if (!isAuthenticated) {
-      return redirectToSignIn({ returnBackUrl: req.url });
-    }
-    if (sessionClaims?.metadata?.role !== "admin") {
-      return NextResponse.redirect(new URL("/unauthorized", req.url));
-    }
-  },
-  { signInUrl: "/sign-in" },
-);
+// Clerk only attaches auth state here. Access is enforced per resource
+// (see lib/auth.ts, used by the (dashboard) layout), following Clerk's
+// migration away from createRouteMatcher().
+export default clerkMiddleware({ signInUrl: "/sign-in" });
 
 export const config = {
   matcher: [
@@ -26,5 +11,7 @@ export const config = {
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
     // Always run for API routes
     "/(api|trpc)(.*)",
+    // Always run for Clerk-specific frontend API routes
+    "/__clerk/(.*)",
   ],
 };

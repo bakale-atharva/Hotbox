@@ -101,8 +101,9 @@ export const run = internalMutation({
     }
 
     const categoryIds = new Map<string, Id<"categories">>();
-    for (const [sortOrder, name] of CATEGORIES.entries()) {
-      categoryIds.set(name, await ctx.db.insert("categories", { name, sortOrder }));
+    for (const [index, name] of CATEGORIES.entries()) {
+      // Menu positions are 1-based.
+      categoryIds.set(name, await ctx.db.insert("categories", { name, sortOrder: index + 1 }));
     }
 
     const ingredientIds = new Map<string, Id<"ingredients">>();

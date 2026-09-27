@@ -43,13 +43,13 @@ export default function CategoriesPage() {
     pizzas?.filter((p) => p.categoryId === id).length;
   const nextSortOrder = categories?.length
     ? Math.max(...categories.map((c) => c.sortOrder)) + 1
-    : 0;
+    : 1;
 
   return (
     <>
       <PageHeader
         title="Categories"
-        description="Group pizzas on the menu. Lower sort order shows first."
+        description="Group pizzas on the menu. Position 1 shows first."
         actions={
           <Button onClick={() => setEditing("new")}>
             <Plus data-icon="inline-start" /> New category
@@ -139,8 +139,8 @@ function CategoryDialog({
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     const order = Number(sortOrder);
-    if (!Number.isFinite(order)) {
-      toast.error("Sort order must be a number.");
+    if (!Number.isInteger(order) || order < 1) {
+      toast.error("Sort order must be a whole number starting at 1.");
       return;
     }
     setBusy(true);
@@ -191,6 +191,8 @@ function CategoryDialog({
             <Input
               id="category-order"
               type="number"
+              min={1}
+              step={1}
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value)}
               required

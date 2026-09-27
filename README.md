@@ -61,8 +61,8 @@ pending ──▶ cooking ──▶ out_for_delivery ──▶ delivered
    ```
 4. **Seed the menu**, and optionally demo orders for 27–30 Sep 2026 (both are safe to run more than once):
    ```bash
-   cd backend && pnpm exec convex run seed:run
-   pnpm exec convex run seed:orders
+   cd backend && pnpm seed
+   pnpm seed:orders
    ```
 5. **Run the frontends**, each in its own terminal:
    ```bash

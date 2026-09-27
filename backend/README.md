@@ -12,8 +12,8 @@ Run these from inside `backend/`.
 | `pnpm dev` | Run `convex dev`: watch, deploy to your dev deployment and regenerate `convex/_generated/`. This is long-running. |
 | `pnpm typecheck` | Typecheck `convex/` |
 | `pnpm lint` | ESLint, including the Convex plugin rules |
-| `pnpm exec convex run seed:run` | Seed the menu. Safe to repeat; it skips if categories already exist. |
-| `pnpm exec convex run seed:orders` | Seed 32 demo orders dated **27–30 Sep 2026** (lunch and dinner times, IST by default; pass `'{utcOffsetMinutes: 0}'` for UTC). Most are delivered, 3 are cancelled and the last 3 are still in progress. Needs the menu first, and is safe to repeat. |
+| `pnpm seed` | Seed the menu (3 categories at positions 1–3, 15 ingredients, 8 pizzas). Safe to repeat; it skips if categories already exist. |
+| `pnpm seed:orders` | Seed 32 demo orders dated **27–30 Sep 2026** (lunch and dinner times, IST by default). Most are delivered, 3 are cancelled and the last 3 are still in progress. Needs the menu first, and is safe to repeat. For a UTC store, run `pnpm exec convex run seed:orders '{utcOffsetMinutes: 0}'`. |
 
 Use `pnpm exec convex <command>` for any other Convex CLI command. Never edit `convex/_generated/` by hand.
 
@@ -33,7 +33,7 @@ All money is stored as **integer cents**.
 
 | Table | Fields |
 | --- | --- |
-| `categories` | `name`, `sortOrder` |
+| `categories` | `name`, `sortOrder` (1-based menu position) |
 | `ingredients` | `name`, `inStock` |
 | `pizzas` | `name`, `description`, `categoryId`, `ingredientIds`, `prices { small, medium, large }`, `imageId?` (Convex file storage), `isAvailable` |
 | `orders` | `userId` (Clerk `tokenIdentifier`), `customerName`, `address`, `phone`, `notes?`, `items[]` (snapshot of name, size, unit price, quantity), `subtotal`, `deliveryFee`, `total`, `status`, `placedAt?`, `cookingAt?`, `outForDeliveryAt?`, `deliveredAt?`, `cancelledAt?` |
