@@ -46,3 +46,9 @@ example
 /app/.env.local
 /admin/.env.local
 /backend/.env.local
+
+# Local agent skills and editor settings
+/app/.agents/
+/backend/.agents/
+/backend/AGENTS.md
+/app/.vscode/
