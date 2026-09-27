@@ -93,4 +93,4 @@ Convex checks this claim on every admin function, so the check is enforced on th
 - [x] **Phase 0**: baseline project setup
 - [x] **Phase 1**: Convex backend (menu, inventory, orders, admin role checks)
 - [x] **Phase 2**: admin panel (live order board, menu and stock CRUD, image uploads, demo order seed)
-- [ ] **Phase 3**: customer app (menu, cart, checkout, live order tracking)
+- [x] **Phase 3**: customer app (menu, cart, checkout, live order tracking)

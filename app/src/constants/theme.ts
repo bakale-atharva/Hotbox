@@ -1,6 +1,6 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Hotbox brand tokens, shared with the admin panel (admin/app/globals.css).
+ * Keep the hex values in sync between the two.
  */
 
 import '@/global.css';
@@ -9,22 +9,58 @@ import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#1c1917',
+    textSecondary: '#78716c',
+    background: '#fffaf5',
+    backgroundElement: '#f5efe9',
+    backgroundSelected: '#ede5dd',
+    card: '#ffffff',
+    border: '#ede5dd',
+    input: '#e7ddd3',
+    primary: '#e4572e',
+    primaryForeground: '#ffffff',
+    secondary: '#fdeee6',
+    secondaryForeground: '#9a3412',
+    destructive: '#dc2626',
+    statusPending: '#d97706',
+    statusCooking: '#e4572e',
+    statusOutForDelivery: '#2563eb',
+    statusDelivered: '#16a34a',
+    statusCancelled: '#78716c',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    text: '#f5f0eb',
+    textSecondary: '#a8a29e',
+    background: '#12100e',
+    backgroundElement: '#262120',
+    backgroundSelected: '#2e2826',
+    card: '#1c1917',
+    border: '#2e2826',
+    input: '#3a3330',
+    primary: '#f06a40',
+    primaryForeground: '#ffffff',
+    secondary: '#2a211c',
+    secondaryForeground: '#fdba9a',
+    destructive: '#ef4444',
+    statusPending: '#fbbf24',
+    statusCooking: '#f06a40',
+    statusOutForDelivery: '#60a5fa',
+    statusDelivered: '#4ade80',
+    statusCancelled: '#a8a29e',
   },
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
+export type Theme = (typeof Colors)['light' | 'dark'];
+
+/** Matches the admin panel's `--radius` (0.875rem = 14px). */
+export const Radius = {
+  sm: 8,
+  md: 11,
+  lg: 14,
+  xl: 20,
+  pill: 999,
+} as const;
 
 export const Fonts = Platform.select({
   ios: {
@@ -61,5 +97,4 @@ export const Spacing = {
   six: 64,
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
