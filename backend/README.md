@@ -12,7 +12,8 @@ Run these from inside `backend/`.
 | `pnpm dev` | Run `convex dev`: watch, deploy to your dev deployment and regenerate `convex/_generated/`. This is long-running. |
 | `pnpm typecheck` | Typecheck `convex/` |
 | `pnpm lint` | ESLint, including the Convex plugin rules |
-| `pnpm exec convex run seed:run` | Seed the menu. Safe to repeat; it skips if categories already exist. |
+| `pnpm seed` | Seed the menu (3 categories at positions 1–3, 15 ingredients, 8 pizzas). Safe to repeat; it skips if categories already exist. |
+| `pnpm seed:orders` | Seed 32 demo orders dated **27–30 Sep 2026** (lunch and dinner times, IST by default). Most are delivered, 3 are cancelled and the last 3 are still in progress. Needs the menu first, and is safe to repeat. For a UTC store, run `pnpm exec convex run seed:orders '{utcOffsetMinutes: 0}'`. |
 
 Use `pnpm exec convex <command>` for any other Convex CLI command. Never edit `convex/_generated/` by hand.
 
@@ -32,10 +33,12 @@ All money is stored as **integer cents**.
 
 | Table | Fields |
 | --- | --- |
-| `categories` | `name`, `sortOrder` |
+| `categories` | `name`, `sortOrder` (1-based menu position, unique and gap-free) |
 | `ingredients` | `name`, `inStock` |
 | `pizzas` | `name`, `description`, `categoryId`, `ingredientIds`, `prices { small, medium, large }`, `imageId?` (Convex file storage), `isAvailable` |
-| `orders` | `userId` (Clerk `tokenIdentifier`), `customerName`, `address`, `phone`, `notes?`, `items[]` (snapshot of name, size, unit price, quantity), `subtotal`, `deliveryFee`, `total`, `status`, `cookingAt?`, `outForDeliveryAt?`, `deliveredAt?`, `cancelledAt?` |
+| `orders` | `userId` (Clerk `tokenIdentifier`), `customerName`, `address`, `phone`, `notes?`, `items[]` (snapshot of name, size, unit price, quantity), `subtotal`, `deliveryFee`, `total`, `status`, `placedAt?`, `cookingAt?`, `outForDeliveryAt?`, `deliveredAt?`, `cancelledAt?` |
+
+`placedAt` is set when an order is placed. It exists separately from `_creationTime`, which Convex controls, so seed data can carry real dates. Orders created before the field existed fall back to `_creationTime`.
 
 Order items are a **snapshot**: editing or deleting a pizza later doesn't change past orders.
 
@@ -63,6 +66,7 @@ Shared helpers live in [`convex/lib/`](convex/lib/):
 - **`orders.place`** takes only `{ pizzaId, size, quantity }` from the client. Names and prices are looked up on the server. It rejects empty carts, hidden or sold-out pizzas, more than 20 line items, and quantities outside 1–20.
 - **Status transitions** go one step at a time: `pending → cooking → out_for_delivery → delivered`. Admins can cancel from `pending` or `cooking`; customers only from `pending`. Each transition records its timestamp.
 - **Sold out**: a pizza is sold out when any of its ingredients has `inStock: false`.
+- **Category positions** are always 1…n with no duplicates or gaps. Creating or editing a category at position *N* moves it there and shifts the others; out-of-range positions clamp to the end. Deleting a category closes the gap.
 - **Privacy**: customers can only read their own orders.
 - The delivery fee is a flat **$2.99** (`DELIVERY_FEE` in `lib/orderFlow.ts`).
 

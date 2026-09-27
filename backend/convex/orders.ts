@@ -89,6 +89,7 @@ export const place = mutation({
       deliveryFee: DELIVERY_FEE,
       total: subtotal + DELIVERY_FEE,
       status: "pending",
+      placedAt: Date.now(),
     });
   },
 });
