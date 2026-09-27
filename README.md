@@ -1,56 +1,100 @@
-# Welcome to your Expo app 👋
+# 🍕 Hotbox
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A pizza delivery app for a single store, **Hotbox**. Customers order from a mobile app, and staff run the kitchen from a web admin panel. Both share one [Convex](https://convex.dev) backend, so orders and status changes stream between them in real time.
 
-## Get started
+> Vibe-coded with Claude, inspired by Sonny Sangha.
 
-1. Install dependencies
+## How it fits together
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+┌──────────────────────┐        ┌──────────────────────┐
+│  app/   (Expo)       │        │  admin/   (Next.js)  │
+│  Customers: browse,  │        │  Staff: menu, stock, │
+│  cart, order, track  │        │  order board         │
+└──────────┬───────────┘        └───────────┬──────────┘
+           │   Convex React client (live queries)   │
+           └──────────────┬─────────────────────────┘
+                          ▼
+              ┌──────────────────────┐
+              │  backend/  (Convex)  │
+              │  schema + functions  │
+              └──────────┬───────────┘
+                         │ verifies JWTs
+                         ▼
+                      Clerk (auth, admin role)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+| Folder | What it is | Stack | Docs |
+| --- | --- | --- | --- |
+| [`app/`](app/) | Customer mobile app (iOS, Android, web) | Expo SDK 57, React Native, Expo Router | [app/README.md](app/README.md) |
+| [`admin/`](admin/) | Admin dashboard | Next.js 16, Clerk, Tailwind CSS v4 | [admin/README.md](admin/README.md) |
+| [`backend/`](backend/) | Shared database and server functions | Convex | [backend/README.md](backend/README.md) |
 
-### Other setup steps
+These are **three independent projects**, each with its own `package.json`, lockfile and `node_modules`. There is no root workspace, so run every command from inside the relevant folder.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Order lifecycle
 
-## Learn more
+```
+pending ──▶ cooking ──▶ out_for_delivery ──▶ delivered
+   │           │
+   └───────────┴──▶ cancelled
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+- Customers place cash-on-delivery orders and can cancel only while an order is `pending`.
+- Admins advance an order one step at a time, and can cancel it until it leaves the store.
+- A pizza shows as **sold out** automatically when any of its ingredients is out of stock.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Getting started
 
-## Join the community
+**Prerequisites:** Node.js, [pnpm](https://pnpm.io), a [Convex](https://convex.dev) account and a [Clerk](https://clerk.com) application.
 
-Join our community of developers creating universal apps.
+1. **Install** each project:
+   ```bash
+   cd backend && pnpm install
+   cd ../admin && pnpm install
+   cd ../app && pnpm install
+   ```
+2. **Configure env vars.** Each project has its own `.env.local` (see each README), and none of them are committed.
+3. **Run the backend.** Leave this running; it deploys the functions and regenerates types on save:
+   ```bash
+   cd backend && pnpm dev
+   ```
+4. **Seed the menu** (safe to run more than once):
+   ```bash
+   cd backend && pnpm exec convex run seed:run
+   ```
+5. **Run the frontends**, each in its own terminal:
+   ```bash
+   cd admin && pnpm dev    # http://localhost:3000
+   cd app && pnpm web      # or: pnpm start / pnpm android / pnpm ios
+   ```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Admin access
+
+Only admins can use the admin panel and the admin functions. To make someone an admin:
+
+1. **Clerk Dashboard → Sessions → Customize session token**: add
+   ```json
+   { "metadata": "{{user.public_metadata}}" }
+   ```
+2. **Clerk Dashboard → Users → (user) → Metadata → Public**: set
+   ```json
+   { "role": "admin" }
+   ```
+3. Have that user sign out and back in.
+
+Convex checks this claim on every admin function, so the check is enforced on the server, not just in the UI.
+
+## Conventions
+
+- **pnpm only.** Never commit a `package-lock.json` or `yarn.lock`.
+- **Never commit** `.env` or `.env.local`.
+- Work happens in phases. Each phase gets its own branch and pull request, and is merged only after review.
+- Run lint and typecheck in every project you touch.
+
+## Roadmap
+
+- [x] **Phase 0**: baseline project setup
+- [x] **Phase 1**: Convex backend (menu, inventory, orders, admin role checks)
+- [ ] **Phase 2**: admin panel (live order board, menu and stock CRUD, image uploads)
+- [ ] **Phase 3**: customer app (menu, cart, checkout, live order tracking)
