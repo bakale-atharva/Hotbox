@@ -41,9 +41,6 @@ export default function CategoriesPage() {
 
   const pizzaCount = (id: Category["_id"]) =>
     pizzas?.filter((p) => p.categoryId === id).length;
-  const nextSortOrder = categories?.length
-    ? Math.max(...categories.map((c) => c.sortOrder)) + 1
-    : 1;
 
   return (
     <>
@@ -60,7 +57,7 @@ export default function CategoriesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-24 pl-4">Order</TableHead>
+              <TableHead className="w-24 pl-4">Position</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Pizzas</TableHead>
               <TableHead className="w-24" />
@@ -111,7 +108,7 @@ export default function CategoriesPage() {
           editing === null ? "closed" : editing === "new" ? "new" : editing._id
         }
         category={editing}
-        defaultSortOrder={nextSortOrder}
+        count={categories?.length ?? 0}
         onClose={() => setEditing(null)}
       />
     </>
@@ -120,27 +117,30 @@ export default function CategoriesPage() {
 
 function CategoryDialog({
   category,
-  defaultSortOrder,
+  count,
   onClose,
 }: {
   category: Category | "new" | null;
-  defaultSortOrder: number;
+  /** How many categories exist right now. */
+  count: number;
   onClose: () => void;
 }) {
   const create = useMutation(api.categories.create);
   const update = useMutation(api.categories.update);
   const existing = category && category !== "new" ? category : null;
+  // A new category can also go at the end, one past the current count.
+  const maxPosition = existing ? count : count + 1;
   const [name, setName] = useState(existing?.name ?? "");
   const [sortOrder, setSortOrder] = useState(
-    String(existing?.sortOrder ?? defaultSortOrder),
+    String(existing?.sortOrder ?? count + 1),
   );
   const [busy, setBusy] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     const order = Number(sortOrder);
-    if (!Number.isInteger(order) || order < 1) {
-      toast.error("Sort order must be a whole number starting at 1.");
+    if (!Number.isInteger(order) || order < 1 || order > maxPosition) {
+      toast.error(`Position must be a whole number from 1 to ${maxPosition}.`);
       return;
     }
     setBusy(true);
@@ -187,16 +187,21 @@ function CategoryDialog({
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="category-order">Sort order</Label>
+            <Label htmlFor="category-order">Position</Label>
             <Input
               id="category-order"
               type="number"
               min={1}
+              max={maxPosition}
               step={1}
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value)}
               required
             />
+            <p className="text-xs text-muted-foreground">
+              1 to {maxPosition}. Each position is unique: other categories
+              shift to make room.
+            </p>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>

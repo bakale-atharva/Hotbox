@@ -10,7 +10,7 @@ The staff dashboard for Hotbox, built with Next.js (App Router), [Clerk](https:/
 | **Order detail** (`/orders/[id]`) | Items, totals, delivery details (tap the phone number to call) and a status timeline. |
 | **Pizzas** (`/pizzas`) | Create, edit and delete pizzas: photo upload to Convex storage, category, ingredients, S/M/L prices and a menu visibility toggle. A **Sold out** badge appears when an ingredient runs out. |
 | **Ingredients** (`/ingredients`) | Search ingredients and toggle stock inline. Turning one off immediately marks every pizza that uses it as sold out. |
-| **Categories** (`/categories`) | Create, edit and delete categories and set their menu position (1, 2, 3, …). Deleting is blocked while pizzas still use the category. |
+| **Categories** (`/categories`) | Create, edit and delete categories and set their menu position (1, 2, 3, …). Positions are unique, so the others shift to make room. Deleting is blocked while pizzas still use the category. |
 
 Also included:
 
