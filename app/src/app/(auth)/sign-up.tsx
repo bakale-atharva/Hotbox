@@ -9,6 +9,9 @@ import { TextField } from '@/components/ui/text-field';
 import { useTheme } from '@/hooks/use-theme';
 import { clerkMessage } from '@/utils/clerk-errors';
 
+/** Keep in sync with Clerk Dashboard → User & authentication → Password. */
+const MIN_PASSWORD_LENGTH = 8;
+
 export default function SignUpScreen() {
   const theme = useTheme();
   const { signUp, errors, fetchStatus } = useSignUp();
@@ -117,19 +120,25 @@ export default function SignUpScreen() {
         label="Password"
         value={password}
         onChangeText={setPassword}
-        placeholder="Choose a strong password"
+        placeholder="At least 8 characters"
         secureTextEntry
         autoComplete="new-password"
         textContentType="newPassword"
-        // Clerk's rules (length, breached passwords) are the source of truth.
+        // Mirrors the Clerk instance's minimum length; Clerk still enforces
+        // it (plus breached-password checks) and its message wins.
         error={errors.fields.password?.message}
+        hint={
+          password.length > 0 && password.length < MIN_PASSWORD_LENGTH
+            ? `${MIN_PASSWORD_LENGTH - password.length} more character${MIN_PASSWORD_LENGTH - password.length === 1 ? '' : 's'} needed`
+            : undefined
+        }
         onSubmitEditing={onSignUp}
       />
       {formError && <ErrorText>{formError}</ErrorText>}
       <Button
         label="Create account"
         loading={busy}
-        disabled={!emailAddress.trim() || !password}
+        disabled={!emailAddress.trim() || password.length < MIN_PASSWORD_LENGTH}
         onPress={onSignUp}
       />
       <Text style={{ color: theme.textSecondary, textAlign: 'center', fontSize: 15 }}>
