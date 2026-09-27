@@ -21,7 +21,7 @@ Run these from inside `admin/`. The Convex backend runs separately (`cd ../backe
 | `pnpm install` | Install dependencies |
 | `pnpm dev` | Start the Next.js dev server at http://localhost:3000 |
 | `pnpm typecheck` | Typecheck with TypeScript |
-| `pnpm lint` | ESLint (see the known issue below) |
+| `pnpm lint` | ESLint 10 with the Next.js config |
 | `pnpm build` | Typecheck, then run a production build |
 
 ## Environment
@@ -42,6 +42,10 @@ Run these from inside `admin/`. The Convex backend runs separately (`cd ../backe
 - **Auth**: `ClerkProvider` in `app/layout.tsx`, and `ConvexProviderWithClerk` in `components/ConvexClientProvider.tsx`. Route protection lives in `proxy.ts` (Next 16's replacement for `middleware.ts`).
 - **Admin role**: set `{ "role": "admin" }` in a user's Clerk public metadata. See the [root README](../README.md#admin-access).
 
-## Known issues
+## TypeScript 7 and linting
 
-- `pnpm lint` currently crashes with `typescript-eslint does not support TS 7.0`. This project uses TypeScript 7, which typescript-eslint doesn't support yet. `pnpm typecheck` works.
+`pnpm typecheck` uses **TypeScript 7** through the `@typescript/native` alias (its `tsc` bin). typescript-eslint doesn't support TS 7 yet, so the `typescript` package that tooling loads is the **TS 6 API** (`npm:@typescript/typescript6`, which ships a `tsc6` bin, so it doesn't clash). A pnpm override in `pnpm-workspace.yaml` forces TS 6 for the transitive packages too.
+
+`eslint.config.mjs` also pins `settings.react.version`. eslint-config-next's `"detect"` makes eslint-plugin-react call an API that ESLint 10 removed. Keep the pinned version in sync with the installed React.
+
+Undo both workarounds once [typescript-eslint supports TS 7](https://github.com/typescript-eslint/typescript-eslint/issues/10940) and eslint-plugin-react supports ESLint 10.
