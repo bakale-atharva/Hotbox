@@ -16,20 +16,27 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+  // Only move to the code step once a code has actually been sent. Clerk's
+  // sign-up resource reports the email as unverified as soon as it's
+  // created, even when the password was rejected, so it can't drive the UI.
+  const [step, setStep] = useState<'details' | 'verify'>('details');
   const busy = fetchStatus === 'fetching';
-
-  const needsEmailCode =
-    signUp.status === 'missing_requirements' && signUp.unverifiedFields.includes('email_address');
 
   async function onSignUp() {
     setFormError(null);
     const { error } = await signUp.password({ emailAddress: emailAddress.trim(), password });
     if (error) {
+      // Field errors (e.g. password too short) render under their inputs.
       setFormError(errors.fields.emailAddress || errors.fields.password ? null : clerkMessage(error));
       return;
     }
     const { error: sendError } = await signUp.verifications.sendEmailCode();
-    if (sendError) setFormError(clerkMessage(sendError));
+    if (sendError) {
+      setFormError(clerkMessage(sendError));
+      return;
+    }
+    setCode('');
+    setStep('verify');
   }
 
   async function onVerify() {
@@ -43,10 +50,19 @@ export default function SignUpScreen() {
       // Stack.Protected swaps to the app as soon as the session is active.
       const { error: finalizeError } = await signUp.finalize();
       if (finalizeError) setFormError(clerkMessage(finalizeError));
+    } else {
+      setFormError('Your account needs more details to finish. Please start again.');
     }
   }
 
-  if (needsEmailCode) {
+  function startOver() {
+    void signUp.reset();
+    setStep('details');
+    setCode('');
+    setFormError(null);
+  }
+
+  if (step === 'verify') {
     return (
       <AuthScreen title="Verify your email" subtitle={`Enter the code we sent to ${emailAddress.trim()}.`}>
         <TextField
@@ -72,6 +88,14 @@ export default function SignUpScreen() {
             setFormError(error ? clerkMessage(error) : null);
           }}
         />
+        <Button
+          label="Back · use a different email"
+          variant="ghost"
+          size="md"
+          icon={{ sf: 'chevron.left', md: 'arrow_back' }}
+          disabled={busy}
+          onPress={startOver}
+        />
       </AuthScreen>
     );
   }
@@ -93,10 +117,11 @@ export default function SignUpScreen() {
         label="Password"
         value={password}
         onChangeText={setPassword}
-        placeholder="At least 8 characters"
+        placeholder="Choose a strong password"
         secureTextEntry
         autoComplete="new-password"
         textContentType="newPassword"
+        // Clerk's rules (length, breached passwords) are the source of truth.
         error={errors.fields.password?.message}
         onSubmitEditing={onSignUp}
       />
@@ -104,7 +129,7 @@ export default function SignUpScreen() {
       <Button
         label="Create account"
         loading={busy}
-        disabled={!emailAddress.trim() || password.length < 8}
+        disabled={!emailAddress.trim() || !password}
         onPress={onSignUp}
       />
       <Text style={{ color: theme.textSecondary, textAlign: 'center', fontSize: 15 }}>
