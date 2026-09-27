@@ -13,6 +13,7 @@ Run these from inside `backend/`.
 | `pnpm typecheck` | Typecheck `convex/` |
 | `pnpm lint` | ESLint, including the Convex plugin rules |
 | `pnpm exec convex run seed:run` | Seed the menu. Safe to repeat; it skips if categories already exist. |
+| `pnpm exec convex run seed:orders` | Seed 32 demo orders dated **27–30 Sep 2026** (lunch and dinner times, IST by default; pass `'{utcOffsetMinutes: 0}'` for UTC). Most are delivered, 3 are cancelled and the last 3 are still in progress. Needs the menu first, and is safe to repeat. |
 
 Use `pnpm exec convex <command>` for any other Convex CLI command. Never edit `convex/_generated/` by hand.
 
@@ -35,7 +36,9 @@ All money is stored as **integer cents**.
 | `categories` | `name`, `sortOrder` |
 | `ingredients` | `name`, `inStock` |
 | `pizzas` | `name`, `description`, `categoryId`, `ingredientIds`, `prices { small, medium, large }`, `imageId?` (Convex file storage), `isAvailable` |
-| `orders` | `userId` (Clerk `tokenIdentifier`), `customerName`, `address`, `phone`, `notes?`, `items[]` (snapshot of name, size, unit price, quantity), `subtotal`, `deliveryFee`, `total`, `status`, `cookingAt?`, `outForDeliveryAt?`, `deliveredAt?`, `cancelledAt?` |
+| `orders` | `userId` (Clerk `tokenIdentifier`), `customerName`, `address`, `phone`, `notes?`, `items[]` (snapshot of name, size, unit price, quantity), `subtotal`, `deliveryFee`, `total`, `status`, `placedAt?`, `cookingAt?`, `outForDeliveryAt?`, `deliveredAt?`, `cancelledAt?` |
+
+`placedAt` is set when an order is placed. It exists separately from `_creationTime`, which Convex controls, so seed data can carry real dates. Orders created before the field existed fall back to `_creationTime`.
 
 Order items are a **snapshot**: editing or deleting a pizza later doesn't change past orders.
 

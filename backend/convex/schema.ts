@@ -30,6 +30,9 @@ export default defineSchema({
     deliveryFee: v.number(),
     total: v.number(),
     status: orderStatus,
+    // When the order was placed. Separate from _creationTime so seed data can
+    // be dated; orders created before this field existed fall back to it.
+    placedAt: v.optional(v.number()),
     cookingAt: v.optional(v.number()),
     outForDeliveryAt: v.optional(v.number()),
     deliveredAt: v.optional(v.number()),
