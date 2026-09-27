@@ -6,10 +6,10 @@ The customer-facing Expo app. Shared repo rules (git workflow, guardrails) live 
 
 Run from inside `app/`.
 
-- **Install:** `pnpm install`
-- **Dev / run:** `pnpm web` (also `pnpm start`, `pnpm android`, `pnpm ios`)
+- **Install:** `pnpm install` from the repo root (one workspace lockfile)
+- **Dev / run:** `pnpm dev` or `pnpm web` (Expo web; also `pnpm start`, `pnpm android`, `pnpm ios`). `pnpm dev` at the repo root runs this alongside admin and backend via Turborepo.
 - **Lint:** `pnpm lint`
-- **Typecheck:** `pnpm exec tsc --noEmit`
+- **Typecheck:** `pnpm typecheck`
 
 # Expo Instructions
 

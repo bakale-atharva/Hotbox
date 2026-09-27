@@ -7,9 +7,9 @@ The Convex backend shared by the admin dashboard and the mobile app. Shared repo
 
 ## Commands
 
-Run from inside `backend/`. `dev` is a long-running process — run it in its own terminal, separate from the admin Next server.
+Run from inside `backend/`. `dev` is a long-running process; `pnpm dev` at the repo root runs it alongside admin and app via Turborepo.
 
-- **Install:** `pnpm install`
+- **Install:** `pnpm install` from the repo root (one workspace lockfile)
 - **Dev (Convex):** `pnpm dev`
 - **Lint:** `pnpm lint`
 - **Typecheck:** `pnpm typecheck`

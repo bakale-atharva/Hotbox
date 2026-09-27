@@ -1,6 +1,12 @@
+packages:
+  - app
+  - admin
+  - backend
+
 allowBuilds:
   browser-tabs-lock: true
   bufferutil: true
   core-js: true
-  esbuild: set this to true or false
+  esbuild: true
+  unrs-resolver: true
   utf-8-validate: true

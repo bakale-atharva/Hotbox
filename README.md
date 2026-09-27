@@ -30,7 +30,7 @@ A pizza delivery app for a single store, **Hotbox**. Customers order from a mobi
 | [`admin/`](admin/) | Admin dashboard | Next.js 16, Clerk, Tailwind CSS v4 | [admin/README.md](admin/README.md) |
 | [`backend/`](backend/) | Shared database and server functions | Convex | [backend/README.md](backend/README.md) |
 
-These are **three independent projects**, each with its own `package.json`, lockfile and `node_modules`. There is no root workspace, so run every command from inside the relevant folder.
+The repo is a **pnpm workspace managed by [Turborepo](https://turborepo.dev)**. The three packages (`@hotbox/app`, `@hotbox/admin`, `@hotbox/backend`) share one root lockfile, and `pnpm dev` at the root starts all of them together.
 
 ## Order lifecycle
 
@@ -48,27 +48,22 @@ pending ──▶ cooking ──▶ out_for_delivery ──▶ delivered
 
 **Prerequisites:** Node.js, [pnpm](https://pnpm.io), a [Convex](https://convex.dev) account and a [Clerk](https://clerk.com) application.
 
-1. **Install** each project:
+1. **Install** everything from the repo root:
    ```bash
-   cd backend && pnpm install
-   cd ../admin && pnpm install
-   cd ../app && pnpm install
+   pnpm install
    ```
 2. **Configure env vars.** Each project has its own `.env.local` (see each README), and none of them are committed.
-3. **Run the backend.** Leave this running; it deploys the functions and regenerates types on save:
+3. **Run everything** from the root. This starts Convex (`backend`), Next.js on http://localhost:3000 (`admin`) and Expo web on http://localhost:8081 (`app`) in Turborepo's terminal UI. Use the arrow keys to switch tasks, `i` to type into one (e.g. Expo shortcuts), and `Ctrl+Z` to stop typing into it:
    ```bash
-   cd backend && pnpm dev
+   pnpm dev
    ```
+   To run one package only: `pnpm turbo dev --filter=@hotbox/admin`.
 4. **Seed the menu**, and optionally demo orders for 27–30 Sep 2026 (both are safe to run more than once):
    ```bash
    cd backend && pnpm seed
    pnpm seed:orders
    ```
-5. **Run the frontends**, each in its own terminal:
-   ```bash
-   cd admin && pnpm dev    # http://localhost:3000
-   cd app && pnpm web      # or: pnpm start / pnpm android / pnpm ios
-   ```
+5. For native builds, run `pnpm start`, `pnpm android` or `pnpm ios` from `app/`.
 
 ## Admin access
 
@@ -91,7 +86,7 @@ Convex checks this claim on every admin function, so the check is enforced on th
 - **pnpm only.** Never commit a `package-lock.json` or `yarn.lock`.
 - **Never commit** `.env` or `.env.local`.
 - Work happens in phases. Each phase gets its own branch and pull request, and is merged only after review.
-- Run lint and typecheck in every project you touch.
+- Run lint and typecheck in every project you touch (`pnpm lint` / `pnpm typecheck` at the root runs them all).
 
 ## Roadmap
 
